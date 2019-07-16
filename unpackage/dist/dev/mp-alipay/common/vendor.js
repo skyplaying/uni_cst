@@ -737,11 +737,67 @@ function startGyroscope(params) {
 
 }
 
+function createExecCallback(execCallback) {
+  return function wrapperExecCallback(res) {
+    this.actions.forEach(function (action, index) {
+      (action._$callbacks || []).forEach(function (callback) {
+        callback(res[index]);
+      });
+    });
+    execCallback(res);
+  };
+}
+
+function addCallback(callback) {
+  if (isFn(callback)) {
+    var action = this.actions[this.actions.length - 1];
+    if (action) {
+      (action._$callbacks || (action._$callbacks = [])).push(callback);
+    }
+  }
+}
+
+function createSelectorQuery() {
+  var query = my.createSelectorQuery();
+
+  var oldExec = query.exec;
+  var oldScrollOffset = query.scrollOffset;
+  var oldBoundingClientRect = query.boundingClientRect;
+  query.exec = function exec(callback) {
+    return oldExec.call(this, createExecCallback(callback).bind(this));
+  };
+  query.scrollOffset = function scrollOffset(callback) {
+    var ret = oldScrollOffset.call(this);
+    addCallback.call(this, callback);
+    return ret;
+  };
+  query.boundingClientRect = function boundingClientRect(callback) {
+    var ret = oldBoundingClientRect.call(this);
+    addCallback.call(this, callback);
+    return ret;
+  };
+
+  if (!query.fields) {
+    query.fields = function () {var _ref5 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},rect = _ref5.rect,size = _ref5.size,scrollOffset = _ref5.scrollOffset;var callback = arguments.length > 1 ? arguments[1] : undefined;
+      if (rect || size) {
+        this.boundingClientRect();
+      }
+      if (scrollOffset) {
+        this.scrollOffset();
+      }
+      addCallback.call(this, callback);
+      return this;
+    };
+  }
+  return query;
+}
+
 var api = /*#__PURE__*/Object.freeze({
   setStorageSync: setStorageSync,
   getStorageSync: getStorageSync,
   removeStorageSync: removeStorageSync,
-  startGyroscope: startGyroscope });
+  startGyroscope: startGyroscope,
+  createSelectorQuery: createSelectorQuery });
 
 
 var PAGE_EVENT_HOOKS = [
@@ -762,11 +818,45 @@ function initMocks(vm, mocks) {
   });
 }
 
-function initHooks(mpOptions, hooks) {
+function hasHook(hook, vueOptions) {
+  if (!vueOptions) {
+    return true;
+  }
+
+  if (_vue.default.options && Array.isArray(_vue.default.options[hook])) {
+    return true;
+  }
+
+  vueOptions = vueOptions.default || vueOptions;
+
+  if (isFn(vueOptions)) {
+    if (isFn(vueOptions.extendOptions[hook])) {
+      return true;
+    }
+    if (vueOptions.super &&
+    vueOptions.super.options &&
+    Array.isArray(vueOptions.super.options[hook])) {
+      return true;
+    }
+    return false;
+  }
+
+  if (isFn(vueOptions[hook])) {
+    return true;
+  }
+  var mixins = vueOptions.mixins;
+  if (Array.isArray(mixins)) {
+    return !!mixins.find(function (mixin) {return hasHook(hook, mixin);});
+  }
+}
+
+function initHooks(mpOptions, hooks, vueOptions) {
   hooks.forEach(function (hook) {
-    mpOptions[hook] = function (args) {
-      return this.$vm && this.$vm.__call_hook(hook, args);
-    };
+    if (hasHook(hook, vueOptions)) {
+      mpOptions[hook] = function (args) {
+        return this.$vm && this.$vm.__call_hook(hook, args);
+      };
+    }
   });
 }
 
@@ -856,8 +946,14 @@ function initBehaviors(vueOptions, initBehavior) {
           vueProps.push('name');
           vueProps.push('value');
         } else {
-          vueProps['name'] = String;
-          vueProps['value'] = null;
+          vueProps['name'] = {
+            type: String,
+            default: '' };
+
+          vueProps['value'] = {
+            type: [String, Number, Boolean, Array, Object, Date],
+            default: '' };
+
         }
       }
     });
@@ -1112,7 +1208,11 @@ function handleEvent(event) {var _this = this;
   event = wrapper$1(event);
 
   // [['tap',[['handle',[1,2,a]],['handle1',[1,2,a]]]]]
-  var eventOpts = (event.currentTarget || event.target).dataset.eventOpts;
+  var dataset = (event.currentTarget || event.target).dataset;
+  if (!dataset) {
+    return console.warn("\u4E8B\u4EF6\u4FE1\u606F\u4E0D\u5B58\u5728");
+  }
+  var eventOpts = dataset.eventOpts || dataset['event-opts']; // 支付宝 web-view 组件 dataset 非驼峰
   if (!eventOpts) {
     return console.warn("\u4E8B\u4EF6\u4FE1\u606F\u4E0D\u5B58\u5728");
   }
@@ -1171,10 +1271,10 @@ var hooks = [
 'onPageNotFound'];
 
 
-function parseBaseApp(vm, _ref5)
+function parseBaseApp(vm, _ref6)
 
 
-{var mocks = _ref5.mocks,initRefs = _ref5.initRefs;
+{var mocks = _ref6.mocks,initRefs = _ref6.initRefs;
   _vue.default.prototype.mpHost = "mp-alipay";
 
   _vue.default.mixin({
@@ -1204,6 +1304,9 @@ function parseBaseApp(vm, _ref5)
 
   var appOptions = {
     onLaunch: function onLaunch(args) {
+      if (this.$vm) {// 已经初始化过了，主要是为了百度，百度 onShow 在 onLaunch 之前
+        return;
+      }
 
       this.$vm = vm;
 
@@ -1244,11 +1347,11 @@ function findVmByVueId(vm, vuePid) {
   }
 }
 
-function handleLink(event) {var _ref6 =
+function handleLink(event) {var _ref7 =
 
 
 
-  event.detail || event.value,vuePid = _ref6.vuePid,vueOptions = _ref6.vueOptions; // detail 是微信,value 是百度(dipatch)
+  event.detail || event.value,vuePid = _ref7.vuePid,vueOptions = _ref7.vueOptions; // detail 是微信,value 是百度(dipatch)
 
   var parentVm;
 
@@ -1326,9 +1429,9 @@ function initRefs$1() {
 
 }
 
-function initBehavior$1(_ref7)
+function initBehavior$1(_ref8)
 
-{var properties = _ref7.properties;
+{var properties = _ref8.properties;
   var props = {};
 
   Object.keys(properties).forEach(function (key) {
@@ -1373,12 +1476,12 @@ function initChildVues(mpInstance) {
   if (!mpInstance.$vm) {
     return;
   }
-  mpInstance._$childVues && mpInstance._$childVues.forEach(function (_ref8)
+  mpInstance._$childVues && mpInstance._$childVues.forEach(function (_ref9)
 
 
 
 
-  {var vuePid = _ref8.vuePid,vueOptions = _ref8.vueOptions,VueComponent = _ref8.VueComponent,childMPInstance = _ref8.mpInstance;
+  {var vuePid = _ref9.vuePid,vueOptions = _ref9.vueOptions,VueComponent = _ref9.VueComponent,childMPInstance = _ref9.mpInstance;
     // 父子关系
     handleLink.call(mpInstance, {
       detail: {
@@ -1565,7 +1668,7 @@ function parsePage(vuePageOptions) {var _initVueComponent =
     __l: handleLink$1 };
 
 
-  initHooks(pageOptions, hooks$1);
+  initHooks(pageOptions, hooks$1, vuePageOptions);
 
   return pageOptions;
 }
@@ -1700,7 +1803,7 @@ canIUses.forEach(function (canIUseApi) {
 
 var uni = {};
 
-if (typeof Proxy !== 'undefined') {
+if (typeof Proxy !== 'undefined' && "mp-alipay" !== 'app-plus') {
   uni = new Proxy({}, {
     get: function get(target, name) {
       if (name === 'upx2px') {
@@ -6329,8 +6432,22 @@ function initProps (vm, propsOptions) {
                 return
             }
             //fixed by xxxxxx __next_tick_pending,uni://form-field 时不告警
-            if(vm._getFormData || (vm.$parent && vm.$parent.__next_tick_pending)){
+            if(
+                key === 'value' && 
+                Array.isArray(vm.$options.behaviors) &&
+                vm.$options.behaviors.indexOf('uni://form-field') !== -1
+              ){
               return
+            }
+            if(vm._getFormData){
+              return
+            }
+            var $parent = vm.$parent;
+            while($parent){
+              if($parent.__next_tick_pending){
+                return  
+              }
+              $parent = $parent.$parent;
             }
           }
           warn(
@@ -7277,57 +7394,64 @@ function nextTick$1(vm, cb) {
 /*  */
 
 function cloneWithData(vm) {
-    // 确保当前 vm 所有数据被同步
-    var dataKeys = [].concat(
-        Object.keys(vm._data || {}),
-        Object.keys(vm._computedWatchers || {}));
+  // 确保当前 vm 所有数据被同步
+  var ret = Object.create(null);
+  var dataKeys = [].concat(
+    Object.keys(vm._data || {}),
+    Object.keys(vm._computedWatchers || {}));
 
-    var ret = dataKeys.reduce(function(ret, key) {
-        ret[key] = vm[key];
-        return ret
-    }, Object.create(null));
-    //TODO 需要把无用数据处理掉，比如 list=>l0 则 list 需要移除，否则多传输一份数据
-    Object.assign(ret, vm.$mp.data || {});
-    if (
-        Array.isArray(vm.$options.behaviors) &&
-        vm.$options.behaviors.indexOf('uni://form-field') !== -1
-    ) { //form-field
-        ret['name'] = vm.name;
-        ret['value'] = vm.value;
-    }
-    return JSON.parse(JSON.stringify(ret))
+  dataKeys.reduce(function(ret, key) {
+    ret[key] = vm[key];
+    return ret
+  }, ret);
+  //TODO 需要把无用数据处理掉，比如 list=>l0 则 list 需要移除，否则多传输一份数据
+  Object.assign(ret, vm.$mp.data || {});
+  if (
+    Array.isArray(vm.$options.behaviors) &&
+    vm.$options.behaviors.indexOf('uni://form-field') !== -1
+  ) { //form-field
+    ret['name'] = vm.name;
+    ret['value'] = vm.value;
+  }
+
+  return JSON.parse(JSON.stringify(ret))
 }
 
 var patch = function(oldVnode, vnode) {
-    var this$1 = this;
+  var this$1 = this;
 
-    if (vnode === null) { //destroy
-        return
+  if (vnode === null) { //destroy
+    return
+  }
+  if (this.mpType === 'page' || this.mpType === 'component') {
+    var mpInstance = this.$scope;
+    var data = Object.create(null);
+    try {
+      data = cloneWithData(this);
+    } catch (err) {
+      console.error(err);
     }
-    if (this.mpType === 'page' || this.mpType === 'component') {
-        var mpInstance = this.$scope;
-        var data = cloneWithData(this);
-        data.__webviewId__ = mpInstance.data.__webviewId__;
-        var mpData = Object.create(null);
-        Object.keys(data).forEach(function (key) { //仅同步 data 中有的数据
-            mpData[key] = mpInstance.data[key];
-        });
-        var diffData = diff(data, mpData);
-        if (Object.keys(diffData).length) {
-            if (Object({"NODE_ENV":"development","VUE_APP_PLATFORM":"mp-alipay","BASE_URL":"/"}).VUE_APP_DEBUG) {
-                console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + this._uid +
-                    ']差量更新',
-                    JSON.stringify(diffData));
-            }
-            this.__next_tick_pending = true;
-            mpInstance.setData(diffData, function () {
-                this$1.__next_tick_pending = false;
-                flushCallbacks$1(this$1);
-            });
-        } else {
-            flushCallbacks$1(this);
-        }
+    data.__webviewId__ = mpInstance.data.__webviewId__;
+    var mpData = Object.create(null);
+    Object.keys(data).forEach(function (key) { //仅同步 data 中有的数据
+      mpData[key] = mpInstance.data[key];
+    });
+    var diffData = diff(data, mpData);
+    if (Object.keys(diffData).length) {
+      if (Object({"NODE_ENV":"development","VUE_APP_PLATFORM":"mp-alipay","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + this._uid +
+          ']差量更新',
+          JSON.stringify(diffData));
+      }
+      this.__next_tick_pending = true;
+      mpInstance.setData(diffData, function () {
+        this$1.__next_tick_pending = false;
+        flushCallbacks$1(this$1);
+      });
+    } else {
+      flushCallbacks$1(this);
     }
+  }
 };
 
 /*  */
@@ -7473,111 +7597,136 @@ function normalizeStyleBinding (bindingStyle) {
 var MP_METHODS = ['createSelectorQuery', 'createIntersectionObserver', 'selectAllComponents', 'selectComponent'];
 
 function getTarget(obj, path) {
-    var parts = path.split('.');
-    var key = parts[0];
-    if (key.indexOf('__$n') === 0) { //number index
-        key = parseInt(key.replace('__$n', ''));
-    }
-    if (parts.length === 1) {
-        return obj[key]
-    }
-    return getTarget(obj[key], parts.slice(1).join('.'))
+  var parts = path.split('.');
+  var key = parts[0];
+  if (key.indexOf('__$n') === 0) { //number index
+    key = parseInt(key.replace('__$n', ''));
+  }
+  if (parts.length === 1) {
+    return obj[key]
+  }
+  return getTarget(obj[key], parts.slice(1).join('.'))
 }
 
 function internalMixin(Vue) {
 
-    var oldEmit = Vue.prototype.$emit;
+  Vue.config.errorHandler = function(err) {
+    console.error(err);
+  };
 
-    Vue.prototype.$emit = function(event) {
-        if (this.$scope && event) {
-            this.$scope['triggerEvent'](event, {
-                __args__: toArray(arguments, 1)
-            });
-        }
-        return oldEmit.apply(this, arguments)
+  var oldEmit = Vue.prototype.$emit;
+
+  Vue.prototype.$emit = function(event) {
+    if (this.$scope && event) {
+      this.$scope['triggerEvent'](event, {
+        __args__: toArray(arguments, 1)
+      });
+    }
+    return oldEmit.apply(this, arguments)
+  };
+
+  Vue.prototype.$nextTick = function(fn) {
+    return nextTick$1(this, fn)
+  };
+
+  MP_METHODS.forEach(function (method) {
+    Vue.prototype[method] = function(args) {
+      if (this.$scope) {
+        return this.$scope[method](args)
+      }
     };
-    
-    Vue.prototype.$nextTick = function (fn) {
-      return nextTick$1(this, fn)
-    };
+  });
 
-    MP_METHODS.forEach(function (method) {
-        Vue.prototype[method] = function(args) {
-            if (this.$scope) {
-                return this.$scope[method](args)
-            }
-        };
-    });
+  Vue.prototype.__init_provide = initProvide;
 
-    Vue.prototype.__init_provide = initProvide;
+  Vue.prototype.__init_injections = initInjections;
 
-    Vue.prototype.__init_injections = initInjections;
+  Vue.prototype.__call_hook = function(hook, args) {
+    var vm = this;
+    // #7573 disable dep collection when invoking lifecycle hooks
+    pushTarget();
+    var handlers = vm.$options[hook];
+    var info = hook + " hook";
+    var ret;
+    if (handlers) {
+      for (var i = 0, j = handlers.length; i < j; i++) {
+        ret = invokeWithErrorHandling(handlers[i], vm, args ? [args] : null, vm, info);
+      }
+    }
+    if (vm._hasHookEvent) {
+      vm.$emit('hook:' + hook);
+    }
+    popTarget();
+    return ret
+  };
 
-    Vue.prototype.__call_hook = function(hook, args) {
-        var vm = this;
-        // #7573 disable dep collection when invoking lifecycle hooks
-        pushTarget();
-        var handlers = vm.$options[hook];
-        var info = hook + " hook";
-        var ret;
-        if (handlers) {
-            for (var i = 0, j = handlers.length; i < j; i++) {
-                ret = invokeWithErrorHandling(handlers[i], vm, args ? [args] : null, vm, info);
-            }
-        }
-        if (vm._hasHookEvent) {
-            vm.$emit('hook:' + hook);
-        }
-        popTarget();
-        return ret
-    };
+  Vue.prototype.__set_model = function(target, key, value, modifiers) {
+    if (Array.isArray(modifiers)) {
+      if (modifiers.indexOf('trim') !== -1) {
+        value = value.trim();
+      }
+      if (modifiers.indexOf('number') !== -1) {
+        value = this._n(value);
+      }
+    }
+    if (!target) {
+      target = this;
+    }
+    target[key] = value;
+  };
 
-    Vue.prototype.__set_model = function(target, key, value, modifiers) {
-        if (Array.isArray(modifiers)) {
-            if (modifiers.indexOf('trim') !== -1) {
-                value = value.trim();
-            }
-            if (modifiers.indexOf('number') !== -1) {
-                value = this._n(value);
-            }
-        }
-        if(!target){
-            target = this;
-        }
-        target[key] = value;
-    };
+  Vue.prototype.__set_sync = function(target, key, value) {
+    if (!target) {
+      target = this;
+    }
+    target[key] = value;
+  };
 
-    Vue.prototype.__set_sync = function(target, key, value) {
-        if(!target){
-            target = this;
-        }
-        target[key] = value;
-    };
+  Vue.prototype.__get_orig = function(item) {
+    if (isPlainObject(item)) {
+      return item['$orig'] || item
+    }
+    return item
+  };
 
-    Vue.prototype.__get_orig = function(item) {
-        if (isPlainObject(item)) {
-            return item['$orig'] || item
-        }
-        return item
-    };
-
-    Vue.prototype.__get_value = function(dataPath, target) {
-        return getTarget(target || this, dataPath)
-    };
+  Vue.prototype.__get_value = function(dataPath, target) {
+    return getTarget(target || this, dataPath)
+  };
 
 
-    Vue.prototype.__get_class = function(dynamicClass, staticClass) {
-        return renderClass(staticClass, dynamicClass)
-    };
+  Vue.prototype.__get_class = function(dynamicClass, staticClass) {
+    return renderClass(staticClass, dynamicClass)
+  };
 
-    Vue.prototype.__get_style = function(dynamicStyle, staticStyle) {
-        if (!dynamicStyle && !staticStyle) {
-            return ''
-        }
-        var dynamicStyleObj = normalizeStyleBinding(dynamicStyle);
-        var styleObj = staticStyle ? extend(staticStyle, dynamicStyleObj) : dynamicStyleObj;
-        return Object.keys(styleObj).map(function (name) { return ((hyphenate(name)) + ":" + (styleObj[name])); }).join(';')
-    };
+  Vue.prototype.__get_style = function(dynamicStyle, staticStyle) {
+    if (!dynamicStyle && !staticStyle) {
+      return ''
+    }
+    var dynamicStyleObj = normalizeStyleBinding(dynamicStyle);
+    var styleObj = staticStyle ? extend(staticStyle, dynamicStyleObj) : dynamicStyleObj;
+    return Object.keys(styleObj).map(function (name) { return ((hyphenate(name)) + ":" + (styleObj[name])); }).join(';')
+  };
+
+  Vue.prototype.__map = function(val, iteratee) {
+    //TODO 暂不考虑 string,number
+    var ret, i, l, keys, key;
+    if (Array.isArray(val)) {
+      ret = new Array(val.length);
+      for (i = 0, l = val.length; i < l; i++) {
+        ret[i] = iteratee(val[i], i);
+      }
+      return ret
+    } else if (isObject(val)) {
+      keys = Object.keys(val);
+      ret = Object.create(null);
+      for (i = 0, l = keys.length; i < l; i++) {
+        key = keys[i];
+        ret[key] = iteratee(val[key], key, i);
+      }
+      return ret
+    }
+    return []
+  };
 
 }
 
@@ -8755,17 +8904,17 @@ module.exports = g;
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\alertApi.js":
-/*!***************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/alertApi.js ***!
-  \***************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\alertApi.js":
+/*!***********************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/alertApi.js ***!
+  \***********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\util.js"));
-var _index = _interopRequireDefault(__webpack_require__(/*! @/common/http/index */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\index.js"));
-var _config = _interopRequireDefault(__webpack_require__(/*! @/config/config.js */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\config\\config.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+/* WEBPACK VAR INJECTION */(function(uni) {var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util */ "F:\\工作文件\\uni-cst\\common\\util.js"));
+var _index = _interopRequireDefault(__webpack_require__(/*! @/common/http/index */ "F:\\工作文件\\uni-cst\\common\\http\\index.js"));
+var _config = _interopRequireDefault(__webpack_require__(/*! @/config/config.js */ "F:\\工作文件\\uni-cst\\config\\config.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 var api = _config.default.service.api;
 
 // 显示警告框
@@ -9903,17 +10052,17 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\index.js":
-/*!************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/index.js ***!
-  \************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\index.js":
+/*!********************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/index.js ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = exports.getUserInfo = void 0;var _interface = _interopRequireDefault(__webpack_require__(/*! ./interface */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\interface.js"));
-var _alertApi = _interopRequireDefault(__webpack_require__(/*! @/common/http/alertApi.js */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\alertApi.js"));
-var _common = _interopRequireDefault(__webpack_require__(/*! @/common/http/module/common.js */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\module\\common.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = exports.getUserInfo = void 0;var _interface = _interopRequireDefault(__webpack_require__(/*! ./interface */ "F:\\工作文件\\uni-cst\\common\\http\\interface.js"));
+var _alertApi = _interopRequireDefault(__webpack_require__(/*! @/common/http/alertApi.js */ "F:\\工作文件\\uni-cst\\common\\http\\alertApi.js"));
+var _common = _interopRequireDefault(__webpack_require__(/*! @/common/http/module/common.js */ "F:\\工作文件\\uni-cst\\common\\http\\module\\common.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
 
 
 /**
@@ -10007,10 +10156,10 @@ _common.default);exports.default = _default;
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\interface.js":
-/*!****************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/interface.js ***!
-  \****************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\interface.js":
+/*!************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/interface.js ***!
+  \************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10019,12 +10168,12 @@ _common.default);exports.default = _default;
 
 
 
-var _aes_request = _interopRequireDefault(__webpack_require__(/*! ./lib/aes_request */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes_request.js"));
-var _session = _interopRequireDefault(__webpack_require__(/*! ./lib/session */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\session.js"));
+var _aes_request = _interopRequireDefault(__webpack_require__(/*! ./lib/aes_request */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes_request.js"));
+var _session = _interopRequireDefault(__webpack_require__(/*! ./lib/session */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\session.js"));
 
 
-var _constants = _interopRequireDefault(__webpack_require__(/*! ./lib/alipay/constants */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\alipay\\constants.js"));
-var _aLogin = _interopRequireDefault(__webpack_require__(/*! ./lib/alipay/aLogin */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\alipay\\aLogin.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} /**
+var _constants = _interopRequireDefault(__webpack_require__(/*! ./lib/alipay/constants */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\alipay\\constants.js"));
+var _aLogin = _interopRequireDefault(__webpack_require__(/*! ./lib/alipay/aLogin */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\alipay\\aLogin.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} /**
                                                                                                                                                                     * 通用uni-app网络请求
                                                                                                                                                                     * 基于 Promise 对象实现更简单的 request 使用方式，支持请求和响应拦截
                                                                                                                                                                     */ // 条件编译 支付宝登录
@@ -10310,10 +10459,10 @@ function _reqlog(req) {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes.js":
-/*!**************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/aes.js ***!
-  \**************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes.js":
+/*!**********************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/aes.js ***!
+  \**********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10449,10 +10598,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes_request.js":
-/*!**********************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/aes_request.js ***!
-  \**********************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes_request.js":
+/*!******************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/aes_request.js ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10462,7 +10611,7 @@ module.exports = {
               aes接口加密处理接口
               
               */
-var Aes = __webpack_require__(/*! ./aes */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes.js");
+var Aes = __webpack_require__(/*! ./aes */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes.js");
 var CryptoJS = Aes.CryptoJS;
 
 //加密 (秘钥和偏移量找后端拿)
@@ -10546,17 +10695,17 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\alipay\\aLogin.js":
-/*!************************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/alipay/aLogin.js ***!
-  \************************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\alipay\\aLogin.js":
+/*!********************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/alipay/aLogin.js ***!
+  \********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var constants = __webpack_require__(/*! ./constants */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\alipay\\constants.js");
-var Session = __webpack_require__(/*! ./../session */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\session.js");
-var Aes = __webpack_require__(/*! ./../aes_request */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes_request.js");
+var constants = __webpack_require__(/*! ./constants */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\alipay\\constants.js");
+var Session = __webpack_require__(/*! ./../session */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\session.js");
+var Aes = __webpack_require__(/*! ./../aes_request */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes_request.js");
 
 /***
                                         * @class
@@ -10723,10 +10872,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\alipay\\constants.js":
-/*!***************************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/alipay/constants.js ***!
-  \***************************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\alipay\\constants.js":
+/*!***********************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/alipay/constants.js ***!
+  \***********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10756,10 +10905,10 @@ var _module$exports;function _defineProperty(obj, key, value) {if (key in obj) {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\constants.js":
-/*!********************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/constants.js ***!
-  \********************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\constants.js":
+/*!****************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/constants.js ***!
+  \****************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10786,17 +10935,17 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\session.js":
-/*!******************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/session.js ***!
-  \******************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\session.js":
+/*!**************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/session.js ***!
+  \**************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(uni) {
 //处理本地缓存的方法
-var constants = __webpack_require__(/*! ./constants */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\constants.js");
+var constants = __webpack_require__(/*! ./constants */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\constants.js");
 var SESSION_KEY = 'weapp_session_' + constants.WX_SESSION_MAGIC_ID;
 
 var Session = {
@@ -10818,16 +10967,16 @@ module.exports = Session;
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\module\\common.js":
-/*!********************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/module/common.js ***!
-  \********************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\module\\common.js":
+/*!****************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/module/common.js ***!
+  \****************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });exports.default = exports.analysisLocation = void 0;
-var _interface = _interopRequireDefault(__webpack_require__(/*! @/common/http/interface.js */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\interface.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _interface = _interopRequireDefault(__webpack_require__(/*! @/common/http/interface.js */ "F:\\工作文件\\uni-cst\\common\\http\\interface.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 
 //反解析定位
 var analysisLocation = function analysisLocation(obj) {
@@ -10847,10 +10996,10 @@ var analysisLocation = function analysisLocation(obj) {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\util.js":
-/*!******************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/util.js ***!
-  \******************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\util.js":
+/*!**************************************!*\
+  !*** F:/工作文件/uni-cst/common/util.js ***!
+  \**************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10973,10 +11122,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\config\\config.js":
-/*!********************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/config/config.js ***!
-  \********************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\config\\config.js":
+/*!****************************************!*\
+  !*** F:/工作文件/uni-cst/config/config.js ***!
+  \****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -11027,21 +11176,21 @@ module.exports = config;
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\main.js":
-/*!***********************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/main.js ***!
-  \***********************************************************/
+/***/ "F:\\工作文件\\uni-cst\\main.js":
+/*!*******************************!*\
+  !*** F:/工作文件/uni-cst/main.js ***!
+  \*******************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createApp) {__webpack_require__(/*! uni-pages */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createApp) {__webpack_require__(/*! uni-pages */ "F:\\工作文件\\uni-cst\\pages.json");
 
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\App.vue"));
+var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ "F:\\工作文件\\uni-cst\\App.vue"));
 
-var _store = _interopRequireDefault(__webpack_require__(/*! ./store */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\store\\index.js"));
-var _http = _interopRequireDefault(__webpack_require__(/*! @/common/http/ */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var loadImage = function loadImage() {return __webpack_require__.e(/*! import() | components/uni-load-more/uni-load-more */ "components/uni-load-more/uni-load-more").then(__webpack_require__.bind(null, /*! ./components/uni-load-more/uni-load-more.vue */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\components\\uni-load-more\\uni-load-more.vue"));};
+var _store = _interopRequireDefault(__webpack_require__(/*! ./store */ "F:\\工作文件\\uni-cst\\store\\index.js"));
+var _http = _interopRequireDefault(__webpack_require__(/*! @/common/http/ */ "F:\\工作文件\\uni-cst\\common\\http\\index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var loadImage = function loadImage() {return __webpack_require__.e(/*! import() | components/uni-load-more/uni-load-more */ "components/uni-load-more/uni-load-more").then(__webpack_require__.bind(null, /*! ./components/uni-load-more/uni-load-more */ "F:\\工作文件\\uni-cst\\components\\uni-load-more\\uni-load-more.vue"));};
 
 
 _vue.default.config.productionTip = false;
@@ -11070,27 +11219,27 @@ _vue.default.component('loadImage', loadImage);
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\main.js?{\"page\":\"pages%2Findex%2Findex\"}":
-/*!********************************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/main.js?{"page":"pages%2Findex%2Findex"} ***!
-  \********************************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\main.js?{\"page\":\"pages%2Findex%2Findex\"}":
+/*!****************************************************************!*\
+  !*** F:/工作文件/uni-cst/main.js?{"page":"pages%2Findex%2Findex"} ***!
+  \****************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "F:\\工作文件\\uni-cst\\pages.json");
 
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _index = _interopRequireDefault(__webpack_require__(/*! ./pages/index/index.vue */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\pages\\index\\index.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _index = _interopRequireDefault(__webpack_require__(/*! ./pages/index/index.vue */ "F:\\工作文件\\uni-cst\\pages\\index\\index.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 createPage(_index.default);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-alipay/dist/index.js */ "./node_modules/@dcloudio/uni-mp-alipay/dist/index.js")["createPage"]))
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\pages.json":
-/*!**************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/pages.json ***!
-  \**************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\pages.json":
+/*!**********************************!*\
+  !*** F:/工作文件/uni-cst/pages.json ***!
+  \**********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -11099,17 +11248,17 @@ createPage(_index.default);
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\store\\index.js":
-/*!******************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/store/index.js ***!
-  \******************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\store\\index.js":
+/*!**************************************!*\
+  !*** F:/工作文件/uni-cst/store/index.js ***!
+  \**************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
 var _vuex = _interopRequireDefault(__webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js"));
-var _http = _interopRequireDefault(__webpack_require__(/*! @/common/http/ */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _slicedToArray(arr, i) {return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();}function _nonIterableRest() {throw new TypeError("Invalid attempt to destructure non-iterable instance");}function _iterableToArrayLimit(arr, i) {var _arr = [];var _n = true;var _d = false;var _e = undefined;try {for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {_arr.push(_s.value);if (i && _arr.length === i) break;}} catch (err) {_d = true;_e = err;} finally {try {if (!_n && _i["return"] != null) _i["return"]();} finally {if (_d) throw _e;}}return _arr;}function _arrayWithHoles(arr) {if (Array.isArray(arr)) return arr;}
+var _http = _interopRequireDefault(__webpack_require__(/*! @/common/http/ */ "F:\\工作文件\\uni-cst\\common\\http\\index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _slicedToArray(arr, i) {return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();}function _nonIterableRest() {throw new TypeError("Invalid attempt to destructure non-iterable instance");}function _iterableToArrayLimit(arr, i) {var _arr = [];var _n = true;var _d = false;var _e = undefined;try {for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {_arr.push(_s.value);if (i && _arr.length === i) break;}} catch (err) {_d = true;_e = err;} finally {try {if (!_n && _i["return"] != null) _i["return"]();} finally {if (_d) throw _e;}}return _arr;}function _arrayWithHoles(arr) {if (Array.isArray(arr)) return arr;}
 
 _vue.default.use(_vuex.default);
 

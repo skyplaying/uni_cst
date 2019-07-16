@@ -15,7 +15,7 @@
 				</view>
 			</view>
 			<!-- <map style="width: 100%; height: 300px;" :latitude="latitude" :longitude="longitude"></map> -->
-			
+
 
 
 			<!--  列表标题-->
@@ -177,39 +177,56 @@
 				}
 			},
 			chooseCity() {
-	uni.getLocation({
-		type: 'gcj02', //返回可以用于uni.openLocation的经纬度
-		success: function(res) {
-			const latitude = res.latitude;
-			const longitude = res.longitude;
-			console.log(res)
-			uni.openLocation({
-				latitude: latitude,
-				longitude: longitude,
-				success: function(e) {
-					console.log('success', e);
-				}
-			});
-		}
-	 });
-	 
-// uni.chooseLocation({
-//     success: function (res) {
-//         console.log('位置名称：' + res.name);
-//         console.log('详细地址：' + res.address);
-//         console.log('纬度：' + res.latitude);
-//         console.log('经度：' + res.longitude);
-// 		if(res){
-// 			uni.openLocation({
-// 				latitude:res.latitude,
-// 				longitude:res.longitude,
-// 				success: (data) => {
-// 					console.log(data)
-// 				}
-// 			})
-// 		}
-//     }
-// });
+				// uni.getLocation({
+				// 	success: function(res) {
+				// 		console.log('位置名称：' + res.name);
+				// 		console.log('详细地址：' + res.address);
+				// 		console.log('纬度：' + res.latitude);
+				// 		console.log('经度：' + res.longitude);
+				// 		if (res) {
+				// 			uni.openLocation({
+				// 				longitude: '121.549697',
+				// 				latitude: '31.227250',
+				// 				name: '支付宝',
+				// 				address: '杨高路地铁站',
+				// 				success: (data) => {
+				// 					console.log(data)
+				// 				}
+				// 			})
+				// 		}
+				// 	}
+				// });
+				// uni.openLocation({
+				// 	longitude: '121.549697',
+				// 	latitude: '31.227250',
+				// 	name: '支付宝',
+				// 	address: '杨高路地铁站',
+				// 	success: (data) => {
+				// 		console.log(data)
+				// 	}
+				// })
+				uni.chooseLocation({
+					success: function(res) {
+						console.log('位置名称：' + res.name);
+						console.log('详细地址：' + res.address);
+						console.log('纬度：' + res.latitude);
+						console.log('经度：' + res.longitude);
+						let name = res.name.toString()
+						let address = res.address.toString()
+						if (res) {
+							uni.openLocation({
+								latitude: res.latitude,
+								longitude: res.longitude,
+								name: name,
+								address: address,
+								success: (data) => {
+									console.log(data)
+								}
+							})
+						}
+					}
+				});
+
 
 			},
 			sub() {
@@ -248,11 +265,13 @@
 						}
 					}
 				})
+				//#ifndef MP-ALIPAY
 				uni.checkSession({
 					success: (e) => {
 						console.log('会话', e)
 					}
 				})
+				//#endif
 
 				// uni.getLocation({
 				// 	type: 'gcj02', //返回可以用于uni.openLocation的经纬度
@@ -261,8 +280,8 @@
 				// 		const longitude = res.longitude;
 				// 		console.log(res)
 				// 		uni.openLocation({
-				// 			latitude: latitude,
-				// 			longitude: longitude,
+				// 			latitude: 113.910789,
+				// 			longitude:22.517763,
 				// 			success: function(e) {
 				// 				console.log('success', e);
 				// 			}

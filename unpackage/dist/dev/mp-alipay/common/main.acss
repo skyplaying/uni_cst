@@ -147,8 +147,8 @@
 .mc-noborder{border:0;}
 /* 清除边框 */
 /* ---------------------------------------圆角---------------------------------------------- */
-.mc-border-radius{-webkit-border-radius:100rpx;border-radius:100rpx;}
-.mc-border-radius-small{-webkit-border-radius:20rpx;border-radius:20rpx;}
+.mc-border-radius{border-radius:100rpx;}
+.mc-border-radius-small{border-radius:20rpx;}
 /* ---------------------------------------文本样式--------------------------------------- */
 .mc-h1 {font-size: 80rpx; font-weight:700;}
 .mc-h2 {font-size: 60rpx; font-weight:700;}
@@ -346,8 +346,7 @@ image {
 	height: auto;
 	color: inherit;
 	white-space: pre-wrap;
-	-webkit-border-radius: 0;
-	        border-radius: 0;
+	border-radius: 0;
 }
 .formId-btn::after {
 	display: none;
@@ -377,8 +376,7 @@ image {
 	display: inline-block;
 	border: 1px solid #D1D1D1;
 	background-color: #FFFFFF;
-	-webkit-border-radius: 3px;
-	        border-radius: 3px;
+	border-radius: 3px;
 	width: 11px;
 	height: 11px;
 }

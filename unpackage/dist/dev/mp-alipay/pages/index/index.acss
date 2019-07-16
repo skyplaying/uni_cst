@@ -250,6 +250,57 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* 列表 */
 .uni-list:after,
 .uni-list:before {
@@ -298,8 +349,7 @@
 .shopImage {
 	width: 150rpx;
 	height: 140rpx;
-	-webkit-border-radius: 10rpx;
-	        border-radius: 10rpx;
+	border-radius: 10rpx;
 	overflow: hidden;
 }
 .shopInfo {

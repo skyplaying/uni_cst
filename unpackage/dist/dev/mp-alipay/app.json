@@ -3,9 +3,9 @@
     "pages/index/index"
   ],
   "window": {
-    "defaultTitle": "uni-app",
-    "titleBarColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
+    "defaultTitle": "宠善堂",
+    "titleBarColor": "skyblue",
+    "backgroundColor": "white"
   },
   "usingComponents": {
     "load-image": "/components/uni-load-more/uni-load-more"

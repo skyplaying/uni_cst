@@ -8302,17 +8302,17 @@ module.exports = g;
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\alertApi.js":
-/*!***************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/alertApi.js ***!
-  \***************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\alertApi.js":
+/*!***********************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/alertApi.js ***!
+  \***********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\util.js"));
-var _index = _interopRequireDefault(__webpack_require__(/*! @/common/http/index */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\index.js"));
-var _config = _interopRequireDefault(__webpack_require__(/*! @/config/config.js */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\config\\config.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+/* WEBPACK VAR INJECTION */(function(uni) {var _util = _interopRequireDefault(__webpack_require__(/*! @/common/util */ "F:\\工作文件\\uni-cst\\common\\util.js"));
+var _index = _interopRequireDefault(__webpack_require__(/*! @/common/http/index */ "F:\\工作文件\\uni-cst\\common\\http\\index.js"));
+var _config = _interopRequireDefault(__webpack_require__(/*! @/config/config.js */ "F:\\工作文件\\uni-cst\\config\\config.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 var api = _config.default.service.api;
 
 // 显示警告框
@@ -9450,17 +9450,17 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\index.js":
-/*!************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/index.js ***!
-  \************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\index.js":
+/*!********************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/index.js ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = exports.getUserInfo = void 0;var _interface = _interopRequireDefault(__webpack_require__(/*! ./interface */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\interface.js"));
-var _alertApi = _interopRequireDefault(__webpack_require__(/*! @/common/http/alertApi.js */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\alertApi.js"));
-var _common = _interopRequireDefault(__webpack_require__(/*! @/common/http/module/common.js */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\module\\common.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = exports.getUserInfo = void 0;var _interface = _interopRequireDefault(__webpack_require__(/*! ./interface */ "F:\\工作文件\\uni-cst\\common\\http\\interface.js"));
+var _alertApi = _interopRequireDefault(__webpack_require__(/*! @/common/http/alertApi.js */ "F:\\工作文件\\uni-cst\\common\\http\\alertApi.js"));
+var _common = _interopRequireDefault(__webpack_require__(/*! @/common/http/module/common.js */ "F:\\工作文件\\uni-cst\\common\\http\\module\\common.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}
 
 
 /**
@@ -9554,10 +9554,10 @@ _common.default);exports.default = _default;
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\interface.js":
-/*!****************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/interface.js ***!
-  \****************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\interface.js":
+/*!************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/interface.js ***!
+  \************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -9566,8 +9566,8 @@ _common.default);exports.default = _default;
 
 
 
-var _aes_request = _interopRequireDefault(__webpack_require__(/*! ./lib/aes_request */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes_request.js"));
-var _session = _interopRequireDefault(__webpack_require__(/*! ./lib/session */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\session.js"));
+var _aes_request = _interopRequireDefault(__webpack_require__(/*! ./lib/aes_request */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes_request.js"));
+var _session = _interopRequireDefault(__webpack_require__(/*! ./lib/session */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\session.js"));
 
 
 
@@ -9575,8 +9575,8 @@ var _session = _interopRequireDefault(__webpack_require__(/*! ./lib/session */ "
 
 
 
-var _login = _interopRequireDefault(__webpack_require__(/*! ./lib/login */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\login.js"));
-var _constants = _interopRequireDefault(__webpack_require__(/*! ./lib/constants */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\constants.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} /**
+var _login = _interopRequireDefault(__webpack_require__(/*! ./lib/login */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\login.js"));
+var _constants = _interopRequireDefault(__webpack_require__(/*! ./lib/constants */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\constants.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} /**
                                                                                                                                                                    * 通用uni-app网络请求
                                                                                                                                                                    * 基于 Promise 对象实现更简单的 request 使用方式，支持请求和响应拦截
                                                                                                                                                                    */ // 条件编译 支付宝登录
@@ -9857,10 +9857,10 @@ function _reqlog(req) {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes.js":
-/*!**************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/aes.js ***!
-  \**************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes.js":
+/*!**********************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/aes.js ***!
+  \**********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -9996,10 +9996,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes_request.js":
-/*!**********************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/aes_request.js ***!
-  \**********************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes_request.js":
+/*!******************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/aes_request.js ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10009,7 +10009,7 @@ module.exports = {
               aes接口加密处理接口
               
               */
-var Aes = __webpack_require__(/*! ./aes */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\aes.js");
+var Aes = __webpack_require__(/*! ./aes */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\aes.js");
 var CryptoJS = Aes.CryptoJS;
 
 //加密 (秘钥和偏移量找后端拿)
@@ -10093,10 +10093,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\constants.js":
-/*!********************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/constants.js ***!
-  \********************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\constants.js":
+/*!****************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/constants.js ***!
+  \****************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10123,16 +10123,16 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\login.js":
-/*!****************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/login.js ***!
-  \****************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\login.js":
+/*!************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/login.js ***!
+  \************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {var constants = __webpack_require__(/*! ./constants */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\constants.js");
-var Session = __webpack_require__(/*! ./session */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\session.js");
+/* WEBPACK VAR INJECTION */(function(uni) {var constants = __webpack_require__(/*! ./constants */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\constants.js");
+var Session = __webpack_require__(/*! ./session */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\session.js");
 
 /***
                                      * @class
@@ -10294,17 +10294,17 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\session.js":
-/*!******************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/lib/session.js ***!
-  \******************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\lib\\session.js":
+/*!**************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/lib/session.js ***!
+  \**************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(uni) {
 //处理本地缓存的方法
-var constants = __webpack_require__(/*! ./constants */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\lib\\constants.js");
+var constants = __webpack_require__(/*! ./constants */ "F:\\工作文件\\uni-cst\\common\\http\\lib\\constants.js");
 var SESSION_KEY = 'weapp_session_' + constants.WX_SESSION_MAGIC_ID;
 
 var Session = {
@@ -10326,16 +10326,16 @@ module.exports = Session;
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\module\\common.js":
-/*!********************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/http/module/common.js ***!
-  \********************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\http\\module\\common.js":
+/*!****************************************************!*\
+  !*** F:/工作文件/uni-cst/common/http/module/common.js ***!
+  \****************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });exports.default = exports.analysisLocation = void 0;
-var _interface = _interopRequireDefault(__webpack_require__(/*! @/common/http/interface.js */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\interface.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _interface = _interopRequireDefault(__webpack_require__(/*! @/common/http/interface.js */ "F:\\工作文件\\uni-cst\\common\\http\\interface.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 
 //反解析定位
 var analysisLocation = function analysisLocation(obj) {
@@ -10355,10 +10355,10 @@ var analysisLocation = function analysisLocation(obj) {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\util.js":
-/*!******************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/common/util.js ***!
-  \******************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\common\\util.js":
+/*!**************************************!*\
+  !*** F:/工作文件/uni-cst/common/util.js ***!
+  \**************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10481,10 +10481,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\config\\config.js":
-/*!********************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/config/config.js ***!
-  \********************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\config\\config.js":
+/*!****************************************!*\
+  !*** F:/工作文件/uni-cst/config/config.js ***!
+  \****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10535,21 +10535,21 @@ module.exports = config;
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\main.js":
-/*!***********************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/main.js ***!
-  \***********************************************************/
+/***/ "F:\\工作文件\\uni-cst\\main.js":
+/*!*******************************!*\
+  !*** F:/工作文件/uni-cst/main.js ***!
+  \*******************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createApp) {__webpack_require__(/*! uni-pages */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createApp) {__webpack_require__(/*! uni-pages */ "F:\\工作文件\\uni-cst\\pages.json");
 
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\App.vue"));
+var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ "F:\\工作文件\\uni-cst\\App.vue"));
 
-var _store = _interopRequireDefault(__webpack_require__(/*! ./store */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\store\\index.js"));
-var _http = _interopRequireDefault(__webpack_require__(/*! @/common/http/ */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var loadImage = function loadImage() {return __webpack_require__.e(/*! import() | components/uni-load-more/uni-load-more */ "components/uni-load-more/uni-load-more").then(__webpack_require__.bind(null, /*! ./components/uni-load-more/uni-load-more */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\components\\uni-load-more\\uni-load-more.vue"));};
+var _store = _interopRequireDefault(__webpack_require__(/*! ./store */ "F:\\工作文件\\uni-cst\\store\\index.js"));
+var _http = _interopRequireDefault(__webpack_require__(/*! @/common/http/ */ "F:\\工作文件\\uni-cst\\common\\http\\index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};var ownKeys = Object.keys(source);if (typeof Object.getOwnPropertySymbols === 'function') {ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {return Object.getOwnPropertyDescriptor(source, sym).enumerable;}));}ownKeys.forEach(function (key) {_defineProperty(target, key, source[key]);});}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var loadImage = function loadImage() {return __webpack_require__.e(/*! import() | components/uni-load-more/uni-load-more */ "components/uni-load-more/uni-load-more").then(__webpack_require__.bind(null, /*! ./components/uni-load-more/uni-load-more */ "F:\\工作文件\\uni-cst\\components\\uni-load-more\\uni-load-more.vue"));};
 
 
 _vue.default.config.productionTip = false;
@@ -10578,27 +10578,27 @@ _vue.default.component('loadImage', loadImage);
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\main.js?{\"page\":\"pages%2Findex%2Findex\"}":
-/*!********************************************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/main.js?{"page":"pages%2Findex%2Findex"} ***!
-  \********************************************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\main.js?{\"page\":\"pages%2Findex%2Findex\"}":
+/*!****************************************************************!*\
+  !*** F:/工作文件/uni-cst/main.js?{"page":"pages%2Findex%2Findex"} ***!
+  \****************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\pages.json");
+/* WEBPACK VAR INJECTION */(function(createPage) {__webpack_require__(/*! uni-pages */ "F:\\工作文件\\uni-cst\\pages.json");
 
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
-var _index = _interopRequireDefault(__webpack_require__(/*! ./pages/index/index.vue */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\pages\\index\\index.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+var _index = _interopRequireDefault(__webpack_require__(/*! ./pages/index/index.vue */ "F:\\工作文件\\uni-cst\\pages\\index\\index.vue"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
 createPage(_index.default);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ "./node_modules/@dcloudio/uni-mp-weixin/dist/index.js")["createPage"]))
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\pages.json":
-/*!**************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/pages.json ***!
-  \**************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\pages.json":
+/*!**********************************!*\
+  !*** F:/工作文件/uni-cst/pages.json ***!
+  \**********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -10607,17 +10607,17 @@ createPage(_index.default);
 
 /***/ }),
 
-/***/ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\store\\index.js":
-/*!******************************************************************!*\
-  !*** C:/Users/Administrator/Desktop/宠物处理/uni-cst/store/index.js ***!
-  \******************************************************************/
+/***/ "F:\\工作文件\\uni-cst\\store\\index.js":
+/*!**************************************!*\
+  !*** F:/工作文件/uni-cst/store/index.js ***!
+  \**************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ "./node_modules/@dcloudio/vue-cli-plugin-uni/packages/mp-vue/dist/mp.runtime.esm.js"));
 var _vuex = _interopRequireDefault(__webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js"));
-var _http = _interopRequireDefault(__webpack_require__(/*! @/common/http/ */ "C:\\Users\\Administrator\\Desktop\\宠物处理\\uni-cst\\common\\http\\index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _slicedToArray(arr, i) {return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();}function _nonIterableRest() {throw new TypeError("Invalid attempt to destructure non-iterable instance");}function _iterableToArrayLimit(arr, i) {var _arr = [];var _n = true;var _d = false;var _e = undefined;try {for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {_arr.push(_s.value);if (i && _arr.length === i) break;}} catch (err) {_d = true;_e = err;} finally {try {if (!_n && _i["return"] != null) _i["return"]();} finally {if (_d) throw _e;}}return _arr;}function _arrayWithHoles(arr) {if (Array.isArray(arr)) return arr;}
+var _http = _interopRequireDefault(__webpack_require__(/*! @/common/http/ */ "F:\\工作文件\\uni-cst\\common\\http\\index.js"));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function _slicedToArray(arr, i) {return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();}function _nonIterableRest() {throw new TypeError("Invalid attempt to destructure non-iterable instance");}function _iterableToArrayLimit(arr, i) {var _arr = [];var _n = true;var _d = false;var _e = undefined;try {for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {_arr.push(_s.value);if (i && _arr.length === i) break;}} catch (err) {_d = true;_e = err;} finally {try {if (!_n && _i["return"] != null) _i["return"]();} finally {if (_d) throw _e;}}return _arr;}function _arrayWithHoles(arr) {if (Array.isArray(arr)) return arr;}
 
 _vue.default.use(_vuex.default);
 
